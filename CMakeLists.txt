@@ -3,10 +3,15 @@ cmake_minimum_required(VERSION 3.16)
 project(Proyek_1_moduled VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(QT_QML_GENERATE_QMLLS_INI ON)
+set(CMAKE_PREFIX_PATH "D:\\Program-Files\\Qt\\6.9.2\\mingw_64\\lib\\cmake" CACHE STRING "" FORCE)
+set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
+set(QML2_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Qml)
 
 qt_standard_project_setup(REQUIRES 6.8)
+
 
 qt_add_executable(appProyek_1_moduled
     main.cpp
@@ -17,12 +22,11 @@ qt_add_qml_module(appProyek_1_moduled
     VERSION 1.0
     QML_FILES
         Main.qml
-        QML_FILES components/main/NavBar.qml
-        QML_FILES components/main/SideBar.qml
-        QML_FILES components/main/ContentContainer.qml
-        QML_FILES components/contents/HomePage.qml
-        QML_FILES components/contents/HomePageSections/Section1.qml
-        RESOURCES key
+        components/main/NavBar.qml
+        components/main/SideBar.qml
+        components/main/ContentContainer.qml
+        components/contents/HomePage.qml
+        components/contents/HomePageSections/Section1.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -37,7 +41,7 @@ set_target_properties(appProyek_1_moduled PROPERTIES
 )
 
 target_link_libraries(appProyek_1_moduled
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick Qt6::Qml
 )
 
 include(GNUInstallDirs)

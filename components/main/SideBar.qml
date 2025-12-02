@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Layouts
 import QtQuick.Effects
 
 Item {
@@ -14,6 +13,22 @@ Item {
         id: main
         anchors.fill: parent
         color: "#7AE582"
+
+        Item {
+            id: sideBarContents
+            opacity: 0.0
+            anchors.fill: parent
+
+            Text {
+                x: parent.width/2 - width/2
+                y: 10
+
+                text: "Aplikasikuh"
+                color: "white"
+                font.pixelSize: 20
+                font.bold: true
+            }
+        }
 
         Rectangle {
             id: button
@@ -129,6 +144,13 @@ Item {
                         to: 200
                         duration: 1000
                         easing.type: Easing.OutExpo
+                    }
+                    PropertyAnimation {
+                        target: sideBarContents
+                        property: "opacity"
+                        to: 1.0
+                        duration: 1000
+                        easing.type: Easing.InOutExpo
                     }
                 }
             }
