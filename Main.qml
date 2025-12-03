@@ -1,6 +1,6 @@
 import QtQuick
-import "components/main"
-import "components/contents"
+import "components/qml/main"
+import "components/qml/contents"
 
 Window {
     id: window

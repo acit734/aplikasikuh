@@ -1,6 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Layouts
-import QtQuick.Effects
 import QtQuick.Controls
 import "HomePageSections"
 
@@ -24,7 +22,7 @@ Item {
 
             ScrollBar.vertical: ScrollBar {
                 parent: parent
-                height: parent.availableHeight
+                height: parent.height
                 x: parent.width
             }
 

@@ -1,6 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Layouts
-import QtQuick.Effects
 
 Item {
     required property var content
