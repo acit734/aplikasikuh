@@ -1,13 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Effects
-import QtQuick.Controls
 
 Rectangle {
     property string time
     id: sec1Root
-    width: root.width
-    height: root.height
     color: "white"
 
     Item {
@@ -175,6 +171,7 @@ Rectangle {
 
                 Component.onCompleted: {
                     let timeHour = Number(sec1Root.time.split(':')[0])
+                    console.log(timeHour)
                     if (4 <= timeHour && timeHour < 12) timeSection = "Pagi"
                     else if (12 <= timeHour && timeHour < 15) timeSection = "Siang"
                     else if (15 <= timeHour && timeHour < 18) timeSection = "Sore"

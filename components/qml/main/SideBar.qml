@@ -105,9 +105,17 @@ Item {
                     Text {
                         id: hoverPointer
                         y: parent.height/2 - height/2
-                        x: 17
+                        x: 7
                         color: "white"
                         font.pixelSize: 15
+                        opacity: 0.0
+
+                        Behavior on x {
+                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                        }
+                        Behavior on opacity {
+                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                        }
                     }
 
                     Text {
@@ -128,8 +136,15 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         onContainsMouseChanged: {
                             pointerAnimate.start()
-                            if (containsMouse) upDownBorder.opacity = 1.0
-                            else upDownBorder.opacity = 0.0
+                            if (containsMouse) {
+                                upDownBorder.opacity = 1.0
+                                hoverPointer.x = 17
+                                hoverPointer.opacity = 1.0
+                            } else {
+                                upDownBorder.opacity = 0.0
+                                hoverPointer.x = 7
+                                hoverPointer.opacity = 0.0
+                            }
                         }
 
                         Timer {
@@ -161,6 +176,11 @@ Item {
                 Selection { label: "Selection 1" }
                 Selection { label: "Selection 2" }
                 Selection { label: "Selection 3" }
+                Selection { label: "Selection 4" }
+                Selection { label: "Selection 4" }
+                Selection { label: "Selection 4" }
+                Selection { label: "Selection 4" }
+                Selection { label: "Selection 4" }
                 Selection { label: "Selection 4" }
             }
         }
@@ -290,6 +310,7 @@ Item {
                     ScriptAction {
                         script: {
                             titleTextRandomizer.start()
+                            target.disableScroll = true
                         }
                     }
                 }
