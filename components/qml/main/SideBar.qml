@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Effects
+import QtQuick.Controls
 
 Item {
     required property var target
@@ -68,120 +69,144 @@ Item {
                 }
             }
 
-            Column {
+            Rectangle {
+                width: parent.width
+                height: parent.height - 75
                 y: 75
-                width: sideBarContents.width
+                color: "transparent"
 
-                component Selection: Rectangle {
-                    id: selectionLabel
-                    property string label
+                ScrollView {
+                    id: sideBarScroll
+                    anchors.fill: parent
 
-                    width: parent.width
-                    height: 50
-                    color: "transparent"
+                    ScrollBar.horizontal: ScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
 
-                    Item {
-                        id: upDownBorder
-                        opacity: 0.0
-                        anchors.fill: parent
+                    Column {
+                        width: sideBarContents.width
 
-                        Behavior on opacity {
-                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
-                        }
+                        component Selection: Rectangle {
+                            id: selectionLabel
+                            property string label
 
-                        Rectangle {
-                            height: 2
                             width: parent.width
-                            color: "white"
-                        }
-                        Rectangle {
-                            y: parent.height - height
-                            height: 2
-                            width: parent.width
-                            color: "white"
-                        }
-                    }
+                            height: 50
+                            color: "transparent"
 
-                    Text {
-                        id: hoverPointer
-                        y: parent.height/2 - height/2
-                        x: 7
-                        color: "white"
-                        font.pixelSize: 15
-                        opacity: 0.0
+                            Item {
+                                id: upDownBorder
+                                opacity: 0.0
+                                anchors.fill: parent
 
-                        Behavior on x {
-                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
-                        }
-                        Behavior on opacity {
-                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
-                        }
-                    }
-
-                    Text {
-                        id: selectionText
-                        text: parent.label
-                        y: parent.height/2 - height/2
-                        x: 30
-                        color: "white"
-                        font.pixelSize: 15
-                    }
-
-                    MouseArea {
-                        id: pointerAnimation
-                        property string characters: "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
-
-                        hoverEnabled: true
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onContainsMouseChanged: {
-                            pointerAnimate.start()
-                            if (containsMouse) {
-                                upDownBorder.opacity = 1.0
-                                hoverPointer.x = 17
-                                hoverPointer.opacity = 1.0
-                            } else {
-                                upDownBorder.opacity = 0.0
-                                hoverPointer.x = 7
-                                hoverPointer.opacity = 0.0
-                            }
-                        }
-
-                        Timer {
-                            id: pointerAnimate
-                            property real elapsed: 0
-
-                            interval: 10
-                            repeat: true
-                            running: false
-                            
-                            onTriggered: {
-                                if (elapsed >= 75) {
-                                    if (pointerAnimation.containsMouse) hoverPointer.text = ">"
-                                    else hoverPointer.text = ""
-                                    elapsed = 0
-                                    running = false
-                                    return
+                                Behavior on opacity {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
                                 }
 
-                                hoverPointer.text = pointerAnimation.characters[Math.floor(Math.random() * 62)]
+                                Rectangle {
+                                    height: 2
+                                    width: parent.width
+                                    color: "white"
+                                }
+                                Rectangle {
+                                    y: parent.height - height
+                                    height: 2
+                                    width: parent.width
+                                    color: "white"
+                                }
+                            }
 
-                                elapsed += interval
+                            Text {
+                                id: hoverPointer
+                                y: parent.height/2 - height/2
+                                x: 7
+                                color: "white"
+                                font.pixelSize: 15
+                                opacity: 0.0
+
+                                Behavior on x {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                                }
+                                Behavior on opacity {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                                }
+                            }
+
+                            Text {
+                                id: selectionText
+                                text: parent.label
+                                y: parent.height/2 - height/2
+                                x: 30
+                                color: "white"
+                                font.pixelSize: 15
+                            }
+
+                            MouseArea {
+                                id: pointerAnimation
+                                property string characters: "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
+
+                                hoverEnabled: true
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onContainsMouseChanged: {
+                                    pointerAnimate.start()
+                                    if (containsMouse) {
+                                        upDownBorder.opacity = 1.0
+                                        hoverPointer.x = 17
+                                        hoverPointer.opacity = 1.0
+                                    } else {
+                                        upDownBorder.opacity = 0.0
+                                        hoverPointer.x = 7
+                                        hoverPointer.opacity = 0.0
+                                    }
+                                }
+
+                                Timer {
+                                    id: pointerAnimate
+                                    property real elapsed: 0
+
+                                    interval: 10
+                                    repeat: true
+                                    running: false
+
+                                    onTriggered: {
+                                        if (elapsed >= 75) {
+                                            if (pointerAnimation.containsMouse) hoverPointer.text = ">"
+                                            else hoverPointer.text = ""
+                                            elapsed = 0
+                                            running = false
+                                            return
+                                        }
+
+                                        hoverPointer.text = pointerAnimation.characters[Math.floor(Math.random() * 62)]
+
+                                        elapsed += interval
+                                    }
+                                }
                             }
                         }
+
+                        Selection { label: "Home" }
+                        Selection { label: "Selection 1" }
+                        Selection { label: "Selection 2" }
+                        Selection { label: "Selection 3" }
+                        Selection { label: "Selection 4" }
+                        Selection { label: "Selection 5" }
+                        Selection { label: "Selection 6" }
+                        Selection { label: "Selection 7" }
+                        Selection { label: "Selection 8" }
+                        Selection { label: "Selection 9" }
                     }
                 }
 
-                Selection { label: "Home" }
-                Selection { label: "Selection 1" }
-                Selection { label: "Selection 2" }
-                Selection { label: "Selection 3" }
-                Selection { label: "Selection 4" }
-                Selection { label: "Selection 4" }
-                Selection { label: "Selection 4" }
-                Selection { label: "Selection 4" }
-                Selection { label: "Selection 4" }
-                Selection { label: "Selection 4" }
+                Binding {
+                    target: sideBarScroll.contentItem
+                    property: "boundsBehavior"
+                    value: Flickable.StopAtBounds
+                }
             }
         }
 
