@@ -171,7 +171,6 @@ Rectangle {
 
                 Component.onCompleted: {
                     let timeHour = Number(sec1Root.time.split(':')[0])
-                    console.log(timeHour)
                     if (4 <= timeHour && timeHour < 12) timeSection = "Pagi"
                     else if (12 <= timeHour && timeHour < 15) timeSection = "Siang"
                     else if (15 <= timeHour && timeHour < 18) timeSection = "Sore"

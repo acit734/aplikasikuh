@@ -17,8 +17,6 @@ Item {
             id: container
             anchors.fill: parent
 
-            
-
             ScrollBar.horizontal: ScrollBar {
                 policy: ScrollBar.AlwaysOff
             }
