@@ -48,6 +48,8 @@ Item {
 
                     onTriggered: {
                         if (index === 11) {
+                            index = 0
+                            titleText.stagedText = ""
                             running = false
                             return
                         }
@@ -92,6 +94,7 @@ Item {
                         component Selection: Rectangle {
                             id: selectionLabel
                             property string label
+                            property var closeAnim
 
                             width: parent.width
                             height: 50
@@ -151,6 +154,9 @@ Item {
                                 hoverEnabled: true
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    selectionLabel.closeAnim.start()
+                                }
                                 onContainsMouseChanged: {
                                     pointerAnimate.start()
                                     if (containsMouse) {
@@ -189,16 +195,16 @@ Item {
                             }
                         }
 
-                        Selection { label: "Home" }
-                        Selection { label: "Selection 1" }
-                        Selection { label: "Selection 2" }
-                        Selection { label: "Selection 3" }
-                        Selection { label: "Selection 4" }
-                        Selection { label: "Selection 5" }
-                        Selection { label: "Selection 6" }
-                        Selection { label: "Selection 7" }
-                        Selection { label: "Selection 8" }
-                        Selection { label: "Selection 9" }
+                        Selection { label: "Home"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 1"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 2"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 3"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 4"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 5"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 6"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 7"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 8"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 9"; closeAnim: closeSideBarAnimation; }
                     }
                 }
 
@@ -281,6 +287,17 @@ Item {
             color: "black"
             opacity: 0.4
         }
+
+        MouseArea {
+            id: sideBarExitArea
+
+            anchors.fill: parent
+            enabled: false
+
+            onClicked: {
+                closeSideBarAnimation.start()
+            }
+        }
     }
 
     SequentialAnimation {
@@ -336,7 +353,67 @@ Item {
                         script: {
                             titleTextRandomizer.start()
                             target.disableScroll = true
+                            sideBarExitArea.enabled = true
                         }
+                    }
+                }
+            }
+        }
+    }
+    ParallelAnimation {
+        id: closeSideBarAnimation
+        ScriptAction {
+            script: {
+                sideBarExitArea.enabled = false
+                target.disableScroll = false
+            }
+        }
+        PropertyAnimation {
+            target: hoverEffect
+            property: "opacity"
+            to: 0.0
+        }
+        PropertyAnimation {
+            target: button
+            properties: "x, y"
+            to: 9.75
+            duration: 1
+        }
+        PropertyAnimation {
+            target: root
+            property: "width"
+            to: 37.5
+            duration: 1000
+            easing.type: Easing.OutExpo
+        }
+        PropertyAnimation {
+            target: sideBarContents
+            property: "opacity"
+            to: 0.0
+            duration: 500
+            easing.type: Easing.OutExpo
+        }
+        SequentialAnimation {
+            PauseAnimation {
+                duration: 800
+            }
+            ParallelAnimation {
+                PropertyAnimation {
+                    target: button
+                    property: "scale"
+                    to: 1.0
+                    duration: 500
+                    easing.type: Easing.OutExpo
+                }
+                PropertyAnimation {
+                    target: button
+                    property: "opacity"
+                    to: 1.0
+                    duration: 300
+                }
+                ScriptAction {
+                    script: {
+                        button.children[0].enabled = true
                     }
                 }
             }
