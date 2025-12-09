@@ -89,12 +89,17 @@ Item {
                     }
 
                     Column {
+                        id: selectionColumn
+
+                        property bool selectionHoverEnabled: false
+
                         width: sideBarContents.width
 
                         component Selection: Rectangle {
                             id: selectionLabel
                             property string label
                             property var closeAnim
+                            property bool sideBarClosed: true
 
                             width: parent.width
                             height: 50
@@ -153,7 +158,9 @@ Item {
 
                                 hoverEnabled: true
                                 anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
+                                cursorShape: parent.sideBarClosed ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                enabled: !parent.sideBarClosed
+
                                 onClicked: {
                                     selectionLabel.closeAnim.start()
                                 }
@@ -205,6 +212,12 @@ Item {
                         Selection { label: "Selection 7"; closeAnim: closeSideBarAnimation; }
                         Selection { label: "Selection 8"; closeAnim: closeSideBarAnimation; }
                         Selection { label: "Selection 9"; closeAnim: closeSideBarAnimation; }
+
+                        onSelectionHoverEnabledChanged: {
+                            for (let i = 0; i < children.length; i++) {
+                                children[i].sideBarClosed = !selectionHoverEnabled
+                            }
+                        }
                     }
                 }
 
@@ -237,6 +250,11 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onEnabledChanged: {
+                    cursorShape = enabled ?Qt.PointingHandCursor :  Qt.ArrowCursor
+                }
                 onContainsMouseChanged: {
                     if (containsMouse) parent.scale = 1.4
                     else parent.scale = 1.0
@@ -354,6 +372,7 @@ Item {
                             titleTextRandomizer.start()
                             target.disableScroll = true
                             sideBarExitArea.enabled = true
+                            selectionColumn.selectionHoverEnabled = true
                         }
                     }
                 }
@@ -366,7 +385,15 @@ Item {
             script: {
                 sideBarExitArea.enabled = false
                 target.disableScroll = false
+                openSidebarAnimation.stop()
+                selectionColumn.selectionHoverEnabled = false
             }
+        }
+        PropertyAnimation {
+            target: button
+            property: "opacity"
+            to: 0.0
+            duration: 1
         }
         PropertyAnimation {
             target: hoverEffect
