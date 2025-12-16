@@ -19,4 +19,9 @@ Window {
     }
     NavBar { id: navBar }
     SideBar { target: contentContainer }
+
+    Component.onCompleted: {
+        Backend.debug("hai") //qmllint disable unqualified
+        console.log("hai")
+    }
 }

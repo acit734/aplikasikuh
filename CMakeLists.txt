@@ -27,6 +27,9 @@ qt_add_qml_module(appProyek_1_moduled
         components/qml/main/ContentContainer.qml
         components/qml/contents/HomePage.qml
         components/qml/contents/HomePageSections/Section1.qml
+    SOURCES
+        components/src/Backend.h
+        components/src/Backend.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
