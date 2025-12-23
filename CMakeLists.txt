@@ -8,7 +8,7 @@ set(CMAKE_PREFIX_PATH "D:\\Program-Files\\Qt\\6.9.2\\mingw_64\\lib\\cmake" CACHE
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 set(QML2_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Qml)
+find_package(Qt6 REQUIRED COMPONENTS Quick Qml Sql)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -25,11 +25,16 @@ qt_add_qml_module(appProyek_1_moduled
         components/qml/main/NavBar.qml
         components/qml/main/SideBar.qml
         components/qml/main/ContentContainer.qml
+        components/qml/main/OpeningAnimation.qml
         components/qml/contents/HomePage.qml
         components/qml/contents/HomePageSections/Section1.qml
     SOURCES
         components/src/Backend.h
         components/src/Backend.cpp
+        components/src/services/database/SqlDatabase.h
+        components/src/services/database/SqlDatabase.cpp
+        components/src/components/OpeningAnimation.h
+        
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -43,8 +48,13 @@ set_target_properties(appProyek_1_moduled PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+target_include_directories(appProyek_1_moduled
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 target_link_libraries(appProyek_1_moduled
-    PRIVATE Qt6::Quick Qt6::Qml
+    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql
 )
 
 include(GNUInstallDirs)
