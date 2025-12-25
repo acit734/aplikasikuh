@@ -12,7 +12,7 @@ SqlDatabase::SqlDatabase(QObject *parent) : QObject(parent) {
 }
 
 bool SqlDatabase::open(const QString &path) {
-    const QString connectionName = "app";
+    const QString connectionName = "QSQLITE";
 
     if (QSqlDatabase::contains(connectionName)) {
         db = QSqlDatabase::database(connectionName);

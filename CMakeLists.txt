@@ -34,7 +34,7 @@ qt_add_qml_module(appProyek_1_moduled
         components/src/services/database/SqlDatabase.h
         components/src/services/database/SqlDatabase.cpp
         components/src/components/OpeningAnimation.h
-        
+        components/src/components/OpeningAnimation.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -50,7 +50,7 @@ set_target_properties(appProyek_1_moduled PROPERTIES
 
 target_include_directories(appProyek_1_moduled
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/components/src
 )
 
 target_link_libraries(appProyek_1_moduled

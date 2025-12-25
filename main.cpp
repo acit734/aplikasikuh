@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         &app,
         &QCoreApplication::aboutToQuit,
         &backend,
-        [](){} //closeDb
+        [&backend]() { backend.closeDb(); }
     );
 
     engine.loadFromModule("Proyek_1_moduled", "Main");
