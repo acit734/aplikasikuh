@@ -7,15 +7,17 @@
 
 class Backend : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QObject* openingAnimation READ openingAnimation CONSTANT)
 public: 
     explicit Backend(QObject *parent = nullptr);
     SqlDatabase& getDb();
     void closeDb();
 
     Q_INVOKABLE void debug(const QString text);
-    Q_INVOKABLE OpeningAnimation* openingAnimation;
+    QObject* openingAnimation() const;
 private:
-    SqlDatabase* db;
+    OpeningAnimation* m_openingAnimation;
+    SqlDatabase* m_db;
 };
 
 #endif // BACKEND_H

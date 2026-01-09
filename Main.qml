@@ -19,5 +19,5 @@ Window {
     }
     NavBar { id: navBar }
     SideBar { target: contentContainer }
-    // OpeningAnimation {}
+    OpeningAnimation {}
 }

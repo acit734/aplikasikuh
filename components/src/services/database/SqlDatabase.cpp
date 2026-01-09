@@ -1,4 +1,6 @@
 #include "SqlDatabase.h"
+#include "SqlCondition.h"
+#include "SqlConditionBuilder.h"
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <QtSql/QsqlRecord>
@@ -9,6 +11,34 @@
 
 SqlDatabase::SqlDatabase(QObject *parent) : QObject(parent) {
 
+}
+
+QString buildWhere(const Condition &c, QList<QVariant> &binds) {
+    switch (c.type) {
+        case Condition::Type::Expr:
+            if (c.op == "BETWEEN") {
+                binds << c.value << c.value2;
+                return QString("%1 BETWEEN ? AND ?").arg(c.field);
+            }
+            binds << c.value;
+            return QString("%1 %2 ?").arg(c.field, c.op);
+        case Condition::Type::And: {
+            QStringList parts;
+            for (auto &child : c.children) 
+                parts << buildWhere(child, binds);
+            return "(" + parts.join(" AND ") + ")";
+        }
+        case Condition::Type::Or: {
+            QStringList parts;
+            for (auto &child : c.children)
+                parts << buildWhere(child, binds);
+            return "(" + parts.join(" OR ") + ")";
+        }
+        case Condition::Type::Not:
+            return "(NOT " + buildWhere(c.children.first(), binds) + ")";
+    }
+
+    return {};
 }
 
 bool SqlDatabase::open(const QString &path) {
@@ -49,7 +79,20 @@ bool SqlDatabase::isOpen() {
 }
 
 bool SqlDatabase::insert(const QString &table, const QVariantMap &data) {
-    if (!db.isOpen() || data.isEmpty()) return false;
+    if (!db.isOpen() || data.isEmpty()) {
+        qWarning() << "[SqlDatabase] Data is empty or db is not open," << table << data;
+        return false;
+    }
+
+    qDebug() << "[SqlDatabase] Inserting...";
+
+    QSqlQuery setupTable(db);
+    setupTable.exec(QString("CREATE TABLE IF NOT EXISTS \"%1\" ("
+        "id INTEGER PRIMARY KEY,"
+        "username TEXT NOT NULL,"
+        "storageLink TEXT NOT NULL,"
+        "loggedIn INTEGER NOT NULL CHECK (loggedIn IN (0, 1))"
+        ");").arg(table));
 
     QStringList fields;
     QStringList placeholders;
@@ -111,6 +154,46 @@ QVariantList SqlDatabase::selectAll(const QString &table) {
     return result;
 }
 
+QVariantList SqlDatabase::selectWhere(const QString &table, const Condition &where) {
+    QVariantList result;
+    QList<QVariant> binds;
+
+    if (!db.isOpen()) {
+        qWarning() << "[SqlDatabase] Database is not open";
+        return result;
+    }
+
+    QString whereSql = buildWhere(where, binds);
+    QString sql = QString("SELECT * FROM %1 WHERE %2").arg(table, whereSql);
+
+    QSqlQuery query(db);
+    query.prepare(sql);
+
+    for (auto &v : binds) {
+        query.addBindValue(v);
+    }   
+
+    if (!query.exec()) {
+        qWarning() << "[SqlDatabase] SELECT WHERE failed," << query.lastError().text();
+        return result;
+    }
+
+    while (query.next()) {
+        QVariantMap row;
+        QSqlRecord record = query.record();
+
+        for (int i = 0; i < record.count(); ++i) {
+            row.insert(
+                record.fieldName(i),
+                query.value(i)
+            );
+        }
+        result.append(row);
+    }
+
+    return result;
+}
+
 bool SqlDatabase::update(const QString &table, const QVariantMap &data, const QVariantMap &where) {
     if (!db.isOpen()) {
         qWarning() << "[SqlDatabase] Database is not open";
@@ -133,7 +216,7 @@ bool SqlDatabase::update(const QString &table, const QVariantMap &data, const QV
         whereParts << QString("%1 = ?").arg(it.key());
     }
 
-    QString sql = QString("UPDATE %1 SET %2 WHERE $3").arg(table, setParts.join(", "), whereParts.join(" AND "));
+    QString sql = QString("UPDATE %1 SET %2 WHERE %3").arg(table, setParts.join(", "), whereParts.join(" AND "));
 
     QSqlQuery query(db);
     query.prepare(sql);

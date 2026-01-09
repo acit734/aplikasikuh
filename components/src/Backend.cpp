@@ -7,26 +7,30 @@
 #include <QCoreApplication>
 
 Backend::Backend(QObject *parent) : QObject(parent) {
-    openingAnimation = new OpeningAnimation(this);
-    db = new SqlDatabase(this);
+    m_openingAnimation = new OpeningAnimation(this);
+    m_db = new SqlDatabase(this);
 
     QString basePath = QCoreApplication::applicationDirPath();
     QString dataPath = basePath + "/data";
 
     if (!QDir().exists(dataPath)) QDir().mkpath(dataPath);
 
-    db->open(dataPath + "/app.db");
+    m_db->open(dataPath + "/app.db");
 }
 
 void Backend::debug(const QString text) {
-    qDebug() << "[backend]: " << text;
+    qDebug() << "[Backend]:" << text;
 }
 
 SqlDatabase& Backend::getDb() {
-    return *db;
+    return *m_db;
 }
 
 void Backend::closeDb() {
-    db->close();
+    m_db->close();
     return;
+}
+
+QObject* Backend::openingAnimation() const {
+    return m_openingAnimation;
 }

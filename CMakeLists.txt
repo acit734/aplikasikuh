@@ -8,7 +8,7 @@ set(CMAKE_PREFIX_PATH "D:\\Program-Files\\Qt\\6.9.2\\mingw_64\\lib\\cmake" CACHE
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 set(QML2_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Qml Sql)
+find_package(Qt6 REQUIRED COMPONENTS Quick Qml Sql QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -33,6 +33,8 @@ qt_add_qml_module(appProyek_1_moduled
         components/src/Backend.cpp
         components/src/services/database/SqlDatabase.h
         components/src/services/database/SqlDatabase.cpp
+        components/src/services/database/SqlCondition.h
+        components/src/services/database/SqlConditionBuilder.h
         components/src/components/OpeningAnimation.h
         components/src/components/OpeningAnimation.cpp
 )
@@ -54,7 +56,7 @@ target_include_directories(appProyek_1_moduled
 )
 
 target_link_libraries(appProyek_1_moduled
-    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql
+    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql Qt6::QuickControls2
 )
 
 include(GNUInstallDirs)

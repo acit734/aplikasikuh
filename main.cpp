@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QtQuickControls2/QQuickStyle>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     freopen("CONOUT$", "w", stderr);
     // (opsional) redirect stdin: freopen("CONIN$", "r", stdin);
     #endif
+    QQuickStyle::setStyle("Basic");
     QGuiApplication app(argc, argv);
     Backend backend;
 
@@ -36,7 +38,10 @@ int main(int argc, char *argv[])
         &app,
         &QCoreApplication::aboutToQuit,
         &backend,
-        [&backend]() { backend.closeDb(); }
+        [&backend]() {
+            backend.closeDb();
+            system("pause");
+        }
     );
 
     engine.loadFromModule("Proyek_1_moduled", "Main");

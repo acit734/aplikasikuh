@@ -8,10 +8,12 @@ class Backend;
 
 class OpeningAnimation : public QObject {
     Q_OBJECT
-    public:
+public:
     explicit OpeningAnimation(Backend* b, QObject *parent = nullptr);
     
-    bool checkUsernameAvailability();
+    Q_INVOKABLE bool checkUsernameAvailability();
+    Q_INVOKABLE void insertUsername(const QString &username, const QString &storageLink);
+    Q_INVOKABLE QString getUsername();
 private:
     Backend* backend;
 };
