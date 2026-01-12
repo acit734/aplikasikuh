@@ -59,9 +59,11 @@ Item {
                     if (parent && typeof parent.requestDestroy === "function") { //qmllint disable
                         parent.requestDestroy() //qmllint disable
                     } else {
-                        self.destroy()
+                        completedAnimation()
                     }
                 }
+
+                signal completedAnimation()
 
                 color: "black"
                 width: 50
@@ -469,6 +471,14 @@ Item {
                         }
                     }
                 }
+            }
+        }
+
+        Connections {
+            target: mainBlock
+            function onCompletedAnimation() {
+                console.log("OpeningAnimation Destroyed.")
+                root.destroy()
             }
         }
 
