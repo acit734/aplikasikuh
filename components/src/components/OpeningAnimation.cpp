@@ -35,7 +35,7 @@ void OpeningAnimation::insertUsername(const QString &username, const QString &st
     data["loggedIn"] = true;
 
     SqlDatabase &db = backend->getDb();
-    db.insert(table, data);
+    db.insert(table, data, "OpeningAnimation");
 
     return;
 }

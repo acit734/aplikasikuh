@@ -78,7 +78,7 @@ bool SqlDatabase::isOpen() {
     return db.isOpen();
 }
 
-bool SqlDatabase::insert(const QString &table, const QVariantMap &data) {
+bool SqlDatabase::insert(const QString &table, const QVariantMap &data, const QString &caller) {
     if (!db.isOpen() || data.isEmpty()) {
         qWarning() << "[SqlDatabase] Data is empty or db is not open," << table << data;
         return false;
@@ -86,13 +86,15 @@ bool SqlDatabase::insert(const QString &table, const QVariantMap &data) {
 
     qDebug() << "[SqlDatabase] Inserting...";
 
-    QSqlQuery setupTable(db);
-    setupTable.exec(QString("CREATE TABLE IF NOT EXISTS \"%1\" ("
-        "id INTEGER PRIMARY KEY,"
-        "username TEXT NOT NULL,"
-        "storageLink TEXT NOT NULL,"
-        "loggedIn INTEGER NOT NULL CHECK (loggedIn IN (0, 1))"
-        ");").arg(table));
+    if (caller == "OpeningAnimation") {
+        QSqlQuery setupTable(db);
+        setupTable.exec(QString("CREATE TABLE IF NOT EXISTS \"%1\" ("
+            "id INTEGER PRIMARY KEY,"
+            "username TEXT NOT NULL,"
+            "storageLink TEXT NOT NULL,"
+            "loggedIn INTEGER NOT NULL CHECK (loggedIn IN (0, 1))"
+            ");").arg(table));
+    }
 
     QStringList fields;
     QStringList placeholders;

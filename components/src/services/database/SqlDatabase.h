@@ -18,7 +18,7 @@ public:
     bool open(const QString &path);
     void close();
     bool isOpen();
-    bool insert(const QString &table, const QVariantMap &data);
+    bool insert(const QString &table, const QVariantMap &data, const QString &caller);
     QVariantList selectAll(const QString &table);
     QVariantList selectWhere(const QString &table, const Condition &where);
     bool update(const QString &table, const QVariantMap &data, const QVariantMap &where);
