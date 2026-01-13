@@ -6,6 +6,11 @@ pragma ComponentBehavior: Bound
 
 Item {
     id: root
+
+    property var contentContainer
+
+    signal startHomePageAnimation()
+
     width: parent.width
     height: parent.height
     z: 3
@@ -477,7 +482,7 @@ Item {
         Connections {
             target: mainBlock
             function onCompletedAnimation() {
-                console.log("OpeningAnimation Destroyed.")
+                root.startHomePageAnimation()
                 root.destroy()
             }
         }
