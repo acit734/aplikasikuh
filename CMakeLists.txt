@@ -7,8 +7,10 @@ set(QT_QML_GENERATE_QMLLS_INI ON)
 set(CMAKE_PREFIX_PATH "D:\\Program-Files\\Qt\\6.9.2\\mingw_64\\lib\\cmake" CACHE STRING "" FORCE)
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 set(QML2_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
+set(LIBGIT2_FILE "C:/vcpkg/installed/x64-mingw-dynamic/lib/libgit2.dll.a")
 
 find_package(Qt6 REQUIRED COMPONENTS Quick Qml Sql QuickControls2)
+find_package(libgit2 CONFIG REQUIRED)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -56,7 +58,7 @@ target_include_directories(appProyek_1_moduled
 )
 
 target_link_libraries(appProyek_1_moduled
-    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql Qt6::QuickControls2
+    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql Qt6::QuickControls2 ${LIBGIT2_FILE}
 )
 
 include(GNUInstallDirs)
