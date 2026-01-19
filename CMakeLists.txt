@@ -39,6 +39,8 @@ qt_add_qml_module(appProyek_1_moduled
         components/src/services/database/SqlConditionBuilder.h
         components/src/components/OpeningAnimation.h
         components/src/components/OpeningAnimation.cpp
+        # components/src/services/network/MainNetwork.h
+        # components/src/services/network/MainNetwork.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
