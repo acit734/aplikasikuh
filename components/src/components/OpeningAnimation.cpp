@@ -1,5 +1,6 @@
-#include <QDebug>
 #include "OpeningAnimation.h"
+
+#include <QDebug>
 #include "services/database/SqlDatabase.h"
 #include "Backend.h"
 #include "services/database/SqlConditionBuilder.h"
