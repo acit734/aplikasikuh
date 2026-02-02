@@ -43,6 +43,8 @@ qt_add_qml_module(appProyek_1_moduled
         components/src/services/network/MainNetwork.cpp
         components/src/components/NavBar.h
         components/src/components/NavBar.cpp
+        components/src/services/network/GithubConnection.h
+        components/src/services/network/GithubConnection.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

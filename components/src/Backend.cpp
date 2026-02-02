@@ -3,6 +3,7 @@
 #include "components/Navbar.h"
 #include "services/database/SqlDatabase.h"
 #include "services/network/MainNetwork.h"
+#include "services/network/GithubConnection.h"
 #include <QObject>
 #include <QDebug>
 #include <QDir>
@@ -14,6 +15,7 @@ Backend::Backend(QObject *parent) : QObject(parent) {
 
     m_db = new SqlDatabase(this);
     m_mainNetwork = new MainNetwork(this);
+    m_githubConnection = new GithubConnection(this);
 
     QString basePath = QCoreApplication::applicationDirPath();
     QString dataPath = basePath + "/data";
@@ -29,17 +31,21 @@ void Backend::debug(const QString text) {
     qDebug() << "[Backend]:" << text;
 }
 
-SqlDatabase& Backend::getDb() {
-    return *m_db;
-}
-
 void Backend::closeDb() {
     m_db->close();
     return;
 }
 
+SqlDatabase& Backend::getDb() {
+    return *m_db;
+}
+
 MainNetwork& Backend::getMainNetwork() {
     return *m_mainNetwork;
+}
+
+GithubConnection& Backend::getGithubConnection() {
+    return *m_githubConnection;
 }
 
 QObject* Backend::openingAnimation() const {
