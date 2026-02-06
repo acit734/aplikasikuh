@@ -24,6 +24,8 @@ public:
 
     QObject* openingAnimation() const;
     QObject* navBar() const;
+
+    NavBar& getNavBar();
 private:
     SqlDatabase* m_db;
     MainNetwork* m_mainNetwork;

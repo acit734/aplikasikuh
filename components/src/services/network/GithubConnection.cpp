@@ -19,11 +19,13 @@
 
 GithubConnection::GithubConnection(Backend* b, QObject *parent) : QObject(parent), backend(b) {
     m_status = "Not Connected";
+    backend->getNavBar().setGithubConnectionStatus(m_status);
     m_manager = new QNetworkAccessManager(this);
     m_timer.setInterval(1000);
+    m_timer.setSingleShot(false);
     m_timer.start();
 
-    connect(&m_timer, &QTimer::timeout, this, GithubConnection::checkUser);
+    connect(&m_timer, &QTimer::timeout, this, &GithubConnection::checkUser);
 }
 
 void GithubConnection::debug(const QVariant &obj) {
@@ -44,7 +46,7 @@ void GithubConnection::checkUser() {
 
     m_timer.stop();
     m_status = "Syncing";
-    emit statusChanged();
+    backend->getNavBar().setGithubConnectionStatus(m_status);
 
     m_key = users[0].toMap()["storageLink"].toString();
     findLink();
@@ -79,8 +81,6 @@ void GithubConnection::findLink() {
 }
 
 bool GithubConnection::sync() {
-    debug(m_storageLink);
-
     QFile databaseFile(QCoreApplication::applicationDirPath() + "/data/app.db");
     databaseFile.open(QIODevice::ReadOnly);
 
@@ -97,7 +97,7 @@ bool GithubConnection::sync() {
     body["message"] = "database sync";
     body["content"] = QString::fromLatin1(databaseBase64);
 
-    auto checkSha = [this, body, req]() mutable {
+    auto asyncWork = [this, body, req]() mutable {
         QNetworkRequest shaReq(QUrl(m_storageLink.toUtf8() + "app.db"));
         shaReq.setRawHeader("Authorization", "Bearer " + m_key.toUtf8());
         shaReq.setRawHeader("User-Agent", "ChromeTest");
@@ -113,16 +113,16 @@ bool GithubConnection::sync() {
                 QJsonDocument doc = QJsonDocument::fromJson(raw);
                 QString theSha = doc.object()["sha"].toString();
                 body["sha"] = theSha;
-                debug(theSha);
-                debug(body["message"].toString());
-                debug(body["content"].toString());
-                debug(body["sha"].toString());
 
                 QByteArray payload = QJsonDocument(body).toJson();
                 QNetworkReply *putReply = m_manager->put(req, payload);
 
                 connect(putReply, &QNetworkReply::finished, this, [this, putReply]() mutable {
-                    debug(QString("PUT reply: %1").arg(putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()));
+                    int code = putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+                    if (code == 200) m_status = "Synced";
+                    else m_status = "Failed to Sync";
+                    backend->getNavBar().setGithubConnectionStatus(m_status);
                     putReply->deleteLater();
                 });
             }
@@ -130,10 +130,6 @@ bool GithubConnection::sync() {
         });
     };
 
-    checkSha();
+    asyncWork();
     return true;
-}
-
-void GithubConnection::onStatusChanged() {
-    backend->navBar();
 }

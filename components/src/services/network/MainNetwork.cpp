@@ -39,6 +39,8 @@ void MainNetwork::onReply(QNetworkReply *reply) {
         m_online = status;
         emit onlineChanged();
     }
+
+    m_checking = false;
     reply->deleteLater();
 }
 

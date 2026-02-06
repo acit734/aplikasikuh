@@ -55,3 +55,7 @@ QObject* Backend::openingAnimation() const {
 QObject* Backend::navBar() const {
     return m_navBar;
 }
+
+NavBar& Backend::getNavBar() {
+    return *m_navBar;
+}

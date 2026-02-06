@@ -15,10 +15,6 @@ public:
     void checkUser();
     void findLink();
     bool sync();
-signals:
-    void statusChanged();
-private slots:
-    void onStatusChanged();
 private:
     Backend *backend;
 

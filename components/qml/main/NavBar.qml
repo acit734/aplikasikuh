@@ -50,6 +50,20 @@ Item {
                 color: "white"
                 font.pixelSize: 15
             }
+
+            Text {
+                text: "|"
+                font.weight: 15
+                font.pixelSize: 15
+                color: "white"
+            }
+
+            Text {
+                id: githubConnectionCheck
+                text: Backend.navBar.githubConnectionStatus //qmllint disable
+                color: "white"
+                font.pixelSize: 15
+            }
         }
     }
 
