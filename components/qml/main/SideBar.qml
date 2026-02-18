@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Effects
+import QtQuick.Controls
 
 Item {
     required property var target
@@ -47,6 +48,8 @@ Item {
 
                     onTriggered: {
                         if (index === 11) {
+                            index = 0
+                            titleText.stagedText = ""
                             running = false
                             return
                         }
@@ -68,100 +71,161 @@ Item {
                 }
             }
 
-            Column {
+            Rectangle {
+                width: parent.width
+                height: parent.height - 75
                 y: 75
-                width: sideBarContents.width
+                color: "transparent"
 
-                component Selection: Rectangle {
-                    id: selectionLabel
-                    property string label
+                ScrollView {
+                    id: sideBarScroll
+                    anchors.fill: parent
 
-                    width: parent.width
-                    height: 50
-                    color: "transparent"
+                    ScrollBar.horizontal: ScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOff
+                    }
 
-                    Item {
-                        id: upDownBorder
-                        opacity: 0.0
-                        anchors.fill: parent
+                    Column {
+                        id: selectionColumn
 
-                        Behavior on opacity {
-                            PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
-                        }
+                        property bool selectionHoverEnabled: false
 
-                        Rectangle {
-                            height: 2
+                        width: sideBarContents.width
+
+                        component Selection: Rectangle {
+                            id: selectionLabel
+                            property string label
+                            property var closeAnim
+                            property bool sideBarClosed: true
+
                             width: parent.width
-                            color: "white"
-                        }
-                        Rectangle {
-                            y: parent.height - height
-                            height: 2
-                            width: parent.width
-                            color: "white"
-                        }
-                    }
+                            height: 50
+                            color: "transparent"
 
-                    Text {
-                        id: hoverPointer
-                        y: parent.height/2 - height/2
-                        x: 17
-                        color: "white"
-                        font.pixelSize: 15
-                    }
+                            Item {
+                                id: upDownBorder
+                                opacity: 0.0
+                                anchors.fill: parent
 
-                    Text {
-                        id: selectionText
-                        text: parent.label
-                        y: parent.height/2 - height/2
-                        x: 30
-                        color: "white"
-                        font.pixelSize: 15
-                    }
-
-                    MouseArea {
-                        id: pointerAnimation
-                        property string characters: "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
-
-                        hoverEnabled: true
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onContainsMouseChanged: {
-                            pointerAnimate.start()
-                            if (containsMouse) upDownBorder.opacity = 1.0
-                            else upDownBorder.opacity = 0.0
-                        }
-
-                        Timer {
-                            id: pointerAnimate
-                            property real elapsed: 0
-
-                            interval: 10
-                            repeat: true
-                            running: false
-                            
-                            onTriggered: {
-                                if (elapsed >= 75) {
-                                    if (pointerAnimation.containsMouse) hoverPointer.text = ">"
-                                    else hoverPointer.text = ""
-                                    elapsed = 0
-                                    running = false
-                                    return
+                                Behavior on opacity {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
                                 }
 
-                                hoverPointer.text = pointerAnimation.characters[Math.floor(Math.random() * 62)]
+                                Rectangle {
+                                    height: 2
+                                    width: parent.width
+                                    color: "white"
+                                }
+                                Rectangle {
+                                    y: parent.height - height
+                                    height: 2
+                                    width: parent.width
+                                    color: "white"
+                                }
+                            }
 
-                                elapsed += interval
+                            Text {
+                                id: hoverPointer
+                                y: parent.height/2 - height/2
+                                x: 7
+                                color: "white"
+                                font.pixelSize: 15
+                                opacity: 0.0
+
+                                Behavior on x {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                                }
+                                Behavior on opacity {
+                                    PropertyAnimation { duration: 200; easing.type: Easing.InOutSine; }
+                                }
+                            }
+
+                            Text {
+                                id: selectionText
+                                text: parent.label
+                                y: parent.height/2 - height/2
+                                x: 30
+                                color: "white"
+                                font.pixelSize: 15
+                            }
+
+                            MouseArea {
+                                id: pointerAnimation
+                                property string characters: "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
+
+                                hoverEnabled: true
+                                anchors.fill: parent
+                                cursorShape: parent.sideBarClosed ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                enabled: !parent.sideBarClosed
+
+                                onClicked: {
+                                    selectionLabel.closeAnim.start()
+                                }
+                                onContainsMouseChanged: {
+                                    pointerAnimate.start()
+                                    if (containsMouse) {
+                                        upDownBorder.opacity = 1.0
+                                        hoverPointer.x = 17
+                                        hoverPointer.opacity = 1.0
+                                    } else {
+                                        upDownBorder.opacity = 0.0
+                                        hoverPointer.x = 7
+                                        hoverPointer.opacity = 0.0
+                                    }
+                                }
+
+                                Timer {
+                                    id: pointerAnimate
+                                    property real elapsed: 0
+
+                                    interval: 10
+                                    repeat: true
+                                    running: false
+
+                                    onTriggered: {
+                                        if (elapsed >= 75) {
+                                            if (pointerAnimation.containsMouse) hoverPointer.text = ">"
+                                            else hoverPointer.text = ""
+                                            elapsed = 0
+                                            running = false
+                                            return
+                                        }
+
+                                        hoverPointer.text = pointerAnimation.characters[Math.floor(Math.random() * 62)]
+
+                                        elapsed += interval
+                                    }
+                                }
+                            }
+                        }
+
+                        Selection { label: "Home"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 1"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 2"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 3"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 4"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 5"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 6"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 7"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 8"; closeAnim: closeSideBarAnimation; }
+                        Selection { label: "Selection 9"; closeAnim: closeSideBarAnimation; }
+
+                        onSelectionHoverEnabledChanged: {
+                            for (let i = 0; i < children.length; i++) {
+                                children[i].sideBarClosed = !selectionHoverEnabled
                             }
                         }
                     }
                 }
 
-                Selection { label: "Home" }
-                Selection { label: "Selection 1" }
-                Selection { label: "Selection 2" }
-                Selection { label: "Selection 3" }
-                Selection { label: "Selection 4" }
+                Binding {
+                    target: sideBarScroll.contentItem
+                    property: "boundsBehavior"
+                    value: Flickable.StopAtBounds
+                }
             }
         }
 
@@ -186,6 +250,11 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onEnabledChanged: {
+                    cursorShape = enabled ?Qt.PointingHandCursor :  Qt.ArrowCursor
+                }
                 onContainsMouseChanged: {
                     if (containsMouse) parent.scale = 1.4
                     else parent.scale = 1.0
@@ -235,6 +304,17 @@ Item {
             anchors.fill: parent
             color: "black"
             opacity: 0.4
+        }
+
+        MouseArea {
+            id: sideBarExitArea
+
+            anchors.fill: parent
+            enabled: false
+
+            onClicked: {
+                closeSideBarAnimation.start()
+            }
         }
     }
 
@@ -290,7 +370,77 @@ Item {
                     ScriptAction {
                         script: {
                             titleTextRandomizer.start()
+                            target.disableScroll = true
+                            sideBarExitArea.enabled = true
+                            selectionColumn.selectionHoverEnabled = true
                         }
+                    }
+                }
+            }
+        }
+    }
+    ParallelAnimation {
+        id: closeSideBarAnimation
+        ScriptAction {
+            script: {
+                sideBarExitArea.enabled = false
+                target.disableScroll = false
+                openSidebarAnimation.stop()
+                selectionColumn.selectionHoverEnabled = false
+            }
+        }
+        PropertyAnimation {
+            target: button
+            property: "opacity"
+            to: 0.0
+            duration: 1
+        }
+        PropertyAnimation {
+            target: hoverEffect
+            property: "opacity"
+            to: 0.0
+        }
+        PropertyAnimation {
+            target: button
+            properties: "x, y"
+            to: 9.75
+            duration: 1
+        }
+        PropertyAnimation {
+            target: root
+            property: "width"
+            to: 37.5
+            duration: 1000
+            easing.type: Easing.OutExpo
+        }
+        PropertyAnimation {
+            target: sideBarContents
+            property: "opacity"
+            to: 0.0
+            duration: 500
+            easing.type: Easing.OutExpo
+        }
+        SequentialAnimation {
+            PauseAnimation {
+                duration: 800
+            }
+            ParallelAnimation {
+                PropertyAnimation {
+                    target: button
+                    property: "scale"
+                    to: 1.0
+                    duration: 500
+                    easing.type: Easing.OutExpo
+                }
+                PropertyAnimation {
+                    target: button
+                    property: "opacity"
+                    to: 1.0
+                    duration: 300
+                }
+                ScriptAction {
+                    script: {
+                        button.children[0].enabled = true
                     }
                 }
             }

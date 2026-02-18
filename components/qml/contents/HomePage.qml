@@ -1,45 +1,26 @@
 import QtQuick 2.15
-import QtQuick.Controls
 import "HomePageSections"
 
-Item {
+Column {
+    id: root
+    
+    function beginSection1Animation() {
+        section1.startOpeningAnimation()
+    }
+
+    property real rWidth: 640 - 37.5
+    property real rHeight: 480 - 37.5
+
     property string time
-
-    id: homePageRoot
-
+    Section1 {
+        id: section1
+        time: parent.time
+        width: root.rWidth
+        height: root.rHeight
+    }
     Rectangle {
-        id: root
-        anchors.fill: parent
-
-        ScrollView {
-            id: scrollView
-            anchors.fill: parent
-
-            ScrollBar.horizontal: ScrollBar {
-                parent: parent
-                active: false
-            }
-
-            ScrollBar.vertical: ScrollBar {
-                parent: parent
-                height: parent.height
-                x: parent.width
-            }
-
-            Column {
-                Section1 { time: homePageRoot.time}
-                Rectangle {
-                    width: root.width
-                    height: root.height
-                    color: "yellow"
-                }
-            }
-        }
-
-        Binding {
-          target: scrollView.contentItem
-          property: "boundsBehavior"
-          value: Flickable.StopAtBounds
-        }
+        width: root.rWidth
+        height: root.rHeight
+        color: "yellow"
     }
 }

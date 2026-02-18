@@ -1,14 +1,14 @@
 import QtQuick 2.15
 import QtQuick.Layouts
-import QtQuick.Effects
-import QtQuick.Controls
 
 Rectangle {
     property string time
     id: sec1Root
-    width: root.width
-    height: root.height
     color: "white"
+
+    function startOpeningAnimation() {
+        greetingTextAndRingSlideDown.start()
+    }
 
     Item {
         anchors.centerIn: parent
@@ -18,9 +18,15 @@ Rectangle {
             y: -height/2
             spacing: 10
             Item {
+                id: greetingRing
                 width: 200
                 height: 200
                 Layout.alignment: Qt.AlignHCenter
+                opacity: 0
+                transform: Translate {
+                    id: greetingRingTranslate
+                    y: -20
+                }
 
                 Rectangle {
                     x: parent.width/2 - width/2
@@ -167,11 +173,17 @@ Rectangle {
                 }
             }
             Text {
+                id: greetingText
                 property string timeSection
                 text: "Selamat " + timeSection
                 Layout.alignment: Qt.AlignHCenter
                 font.pixelSize: 40
                 font.bold: true
+                opacity: 0
+                transform: Translate {
+                    id: greetingTextTranslate
+                    y:-20
+                }
 
                 Component.onCompleted: {
                     let timeHour = Number(sec1Root.time.split(':')[0])
@@ -179,6 +191,46 @@ Rectangle {
                     else if (12 <= timeHour && timeHour < 15) timeSection = "Siang"
                     else if (15 <= timeHour && timeHour < 18) timeSection = "Sore"
                     else if (18 <= timeHour && timeHour < 24 || 0 <= timeHour && timeHour < 4) timeSection = "Malam"
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: greetingTextAndRingSlideDown
+
+        PropertyAnimation {
+            target: greetingRing
+            property: "opacity"
+            to: 1
+            duration: 500
+            easing.type: Easing.Linear
+        }
+        PropertyAnimation {
+            target: greetingRingTranslate
+            property: "y"
+            to: 0
+            duration: 500
+            easing.type: Easing.OutSine
+        }
+        SequentialAnimation {
+            PauseAnimation {
+                duration: 250
+            }
+            ParallelAnimation {
+                PropertyAnimation {
+                    target: greetingText
+                    property: "opacity"
+                    to: 1
+                    duration: 500
+                    easing.type: Easing.Linear
+                }
+                PropertyAnimation {
+                    target: greetingTextTranslate
+                    property: "y"
+                    to: 0
+                    duration: 500
+                    easing.type: Easing.OutSine
                 }
             }
         }

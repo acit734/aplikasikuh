@@ -15,8 +15,22 @@ Window {
 
     ContentContainer {
         id: contentContainer
-        content: HomePage{ time: navBar.time }
+        content: HomePage{
+            id: homePage
+            time: navBar.time
+        }
+
+        Connections {
+            target: openingAnimation
+            function onStartHomePageAnimation() {
+                homePage.beginSection1Animation()
+            }
+        }
     }
     NavBar { id: navBar }
     SideBar { target: contentContainer }
+    OpeningAnimation {
+        id: openingAnimation
+        contentContainer: contentContainer
+    }
 }

@@ -7,8 +7,10 @@ set(QT_QML_GENERATE_QMLLS_INI ON)
 set(CMAKE_PREFIX_PATH "D:\\Program-Files\\Qt\\6.9.2\\mingw_64\\lib\\cmake" CACHE STRING "" FORCE)
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
 set(QML2_IMPORT_PATH "${CMAKE_BINARY_DIR}" CACHE STRING "" FORCE)
+set(LIBGIT2_FILE "C:/vcpkg/installed/x64-mingw-dynamic/lib/libgit2.dll.a")
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Qml)
+find_package(Qt6 REQUIRED COMPONENTS Quick Qml Sql QuickControls2)
+find_package(libgit2 CONFIG REQUIRED)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -25,8 +27,24 @@ qt_add_qml_module(appProyek_1_moduled
         components/qml/main/NavBar.qml
         components/qml/main/SideBar.qml
         components/qml/main/ContentContainer.qml
+        components/qml/main/OpeningAnimation.qml
         components/qml/contents/HomePage.qml
         components/qml/contents/HomePageSections/Section1.qml
+    SOURCES
+        components/src/Backend.h
+        components/src/Backend.cpp
+        components/src/services/database/SqlDatabase.h
+        components/src/services/database/SqlDatabase.cpp
+        components/src/services/database/SqlCondition.h
+        components/src/services/database/SqlConditionBuilder.h
+        components/src/components/OpeningAnimation.h
+        components/src/components/OpeningAnimation.cpp
+        components/src/services/network/MainNetwork.h
+        components/src/services/network/MainNetwork.cpp
+        components/src/components/NavBar.h
+        components/src/components/NavBar.cpp
+        components/src/services/network/GithubConnection.h
+        components/src/services/network/GithubConnection.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -40,8 +58,13 @@ set_target_properties(appProyek_1_moduled PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+target_include_directories(appProyek_1_moduled
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/components/src
+)
+
 target_link_libraries(appProyek_1_moduled
-    PRIVATE Qt6::Quick Qt6::Qml
+    PRIVATE Qt6::Quick Qt6::Qml Qt6::Sql Qt6::QuickControls2 ${LIBGIT2_FILE}
 )
 
 include(GNUInstallDirs)

@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Layouts
 import QtQuick.Effects
 
 Item {
@@ -38,8 +37,45 @@ Item {
                 color: "white"
                 font.pixelSize: 15
             }
+
+            Text {
+                text: "|"
+                font.weight: 15
+                font.pixelSize: 15
+                color: "white"
+            }
+
+            Text {
+                id: internetCheck
+                color: "white"
+                font.pixelSize: 15
+            }
+
+            Text {
+                text: "|"
+                font.weight: 15
+                font.pixelSize: 15
+                color: "white"
+            }
+
+            Text {
+                id: githubConnectionCheck
+                text: Backend.navBar.githubConnectionStatus //qmllint disable
+                color: "white"
+                font.pixelSize: 15
+            }
         }
     }
+
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: {
+            internetCheck.text = Backend.navBar.checkInternet() ? "Online" : "Offline" //qmllint disable
+        }
+    }
+
     Timer {
         interval: 1000
         running: true
