@@ -10,11 +10,12 @@ class GithubConnection : public QObject {
     Q_OBJECT
 public:
     explicit GithubConnection(Backend* b, QObject *parent = nullptr);
-    void debug(const QVariant &obj);
+    void debug(const QVariant &obj, bool showType = false);
 
     void checkUser();
     void findLink();
     bool sync();
+    void mergeDb(const QByteArray &serverDb, const QByteArray &localDb);
 private:
     Backend *backend;
 

@@ -67,7 +67,7 @@ void SqlDatabase::close () {
 
     if (db.isOpen()) db.close();
 
-    db.QSqlDatabase::database(QString(), false);
+    db = QSqlDatabase();
 
     QSqlDatabase::removeDatabase(connectionName);
 

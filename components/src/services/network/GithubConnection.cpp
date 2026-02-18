@@ -5,14 +5,19 @@
 #include <QObject>
 #include <QTimer>
 #include <QFile>
+#include <QDir>
 #include <QIODevice>
 #include <QCoreApplication>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonValue>
 #include "Backend.h"
 #include "services/database/SqlCondition.h"
 #include "services/database/SqlConditionBuilder.h"
@@ -28,8 +33,20 @@ GithubConnection::GithubConnection(Backend* b, QObject *parent) : QObject(parent
     connect(&m_timer, &QTimer::timeout, this, &GithubConnection::checkUser);
 }
 
-void GithubConnection::debug(const QVariant &obj) {
-    qDebug() << "[GithubConnection]:" << obj;
+void GithubConnection::debug(const QVariant &obj, bool showType) {
+    if (obj.canConvert<QString>() && !showType) 
+        qDebug() << "[GithubConnection]:" << obj.toString().toUtf8();
+    else if ((obj.canConvert<QVariantList>() || obj.canConvert<QVariantMap>()) && !showType) {
+        QJsonValue value = QJsonValue::fromVariant(obj);
+        
+        QJsonDocument doc;
+        if (value.isObject()) doc = QJsonDocument(value.toObject());
+        if (value.isArray()) doc = QJsonDocument(value.toArray());
+
+        qDebug() << "[GithubConnection]:" << doc.toJson(QJsonDocument::Compact);
+    } else {
+        qDebug() << "[GithubConnection]:" << obj;
+    }
     return;
 }
 
@@ -95,7 +112,7 @@ bool GithubConnection::sync() {
 
     QJsonObject body;
     body["message"] = "database sync";
-    body["content"] = QString::fromLatin1(databaseBase64);
+    body["content"] = QString::fromUtf8(databaseBase64);
 
     auto asyncWork = [this, body, req]() mutable {
         QNetworkRequest shaReq(QUrl(m_storageLink.toUtf8() + "app.db"));
@@ -114,22 +131,101 @@ bool GithubConnection::sync() {
                 QString theSha = doc.object()["sha"].toString();
                 body["sha"] = theSha;
 
-                QByteArray payload = QJsonDocument(body).toJson();
-                QNetworkReply *putReply = m_manager->put(req, payload);
-
-                connect(putReply, &QNetworkReply::finished, this, [this, putReply]() mutable {
-                    int code = putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-                    if (code == 200) m_status = "Synced";
-                    else m_status = "Failed to Sync";
-                    backend->getNavBar().setGithubConnectionStatus(m_status);
-                    putReply->deleteLater();
-                });
+                QString serverContent = doc.object()["content"].toString().remove("\n");
+                debug(QString("Server Content: %1").arg(serverContent.length()));
+                debug(QString("Local Content: %1").arg(body["content"].toString().length()));
+                mergeDb(QByteArray::fromBase64(serverContent.toUtf8()), QByteArray::fromBase64(body["content"].toString().toUtf8()));
             }
+            QByteArray payload = QJsonDocument(body).toJson();
+            QNetworkReply *putReply = m_manager->put(req, payload);
+
+            connect(putReply, &QNetworkReply::finished, this, [this, putReply]() mutable {
+                int code = putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+                if (code == 200) m_status = "Synced";
+                else m_status = "Failed to Sync";
+                backend->getNavBar().setGithubConnectionStatus(m_status);
+                putReply->deleteLater();
+            });
             shaReply->deleteLater();
         });
     };
 
     asyncWork();
     return true;
+}
+
+void GithubConnection::mergeDb(const QByteArray &serverBinary, const QByteArray &localBinary) {
+    QString tempFolder = QCoreApplication::applicationDirPath() + "/temp";
+    if (!QDir().exists(tempFolder)) QDir().mkpath(tempFolder);
+
+    // QFile serverFile(tempFolder + "/server.db");
+    // if (!serverFile.open(QIODevice::WriteOnly)) {
+    //     debug("Failed to make server.db");
+    // }
+    // serverFile.write(serverBinary);
+    // serverFile.close();
+
+    // QFile localFile(tempFolder + "/local.db");
+    // if (!localFile.open(QIODevice::WriteOnly)) {
+    //     debug("Failed to make local.db");
+    // }
+    // localFile.write(localBinary);
+    // localFile.close();
+
+    QSqlDatabase serverDb = QSqlDatabase::addDatabase("QSQLITE", "server_db");
+    serverDb.setDatabaseName(tempFolder + "/server.db");
+    serverDb.open();
+
+    QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "local_db");
+    localDb.setDatabaseName(tempFolder + "/local.db");
+    localDb.open();
+
+    QSqlDatabase mergedDb = QSqlDatabase::addDatabase("QSQLITE", "merged_db");
+    mergedDb.setDatabaseName(tempFolder + "/merged.Db");
+    mergedDb.open();
+
+    QSqlQuery serverQuery(serverDb);
+    QSqlQuery localQuery(localDb);
+    QSqlQuery mergedQuery(mergedDb);
+
+    serverQuery.exec("SELECT * FROM sqlite_master");
+    localQuery.exec("SELECT * FROM sqlite_master");
+
+    QVariantList serverTables;
+    QVariantList localTables;
+
+    while (serverQuery.next()) {
+        QVariantMap row;
+        QSqlRecord record = serverQuery.record();
+
+        for (int i = 0; i < record.count(); i++)
+            row.insert(record.fieldName(i), serverQuery.value(i));
+        
+        serverTables.append(row);
+    }
+
+    while (localQuery.next()) {
+        QVariantMap row;
+        QSqlRecord record = localQuery.record();
+
+        for (int i = 0; i < record.count(); i++)
+            row.insert(record.fieldName(i), localQuery.value(i));
+        
+        localTables.append(row);
+    }
+
+    debug(localTables);
+
+    serverDb.close();
+    serverDb = QSqlDatabase();
+    QSqlDatabase::removeDatabase("server_db");
+
+    localDb.close();
+    localDb = QSqlDatabase();
+    QSqlDatabase::removeDatabase("local_db");
+
+    mergedDb.close();
+    mergedDb = QSqlDatabase();
+    QSqlDatabase::removeDatabase("merged_db");
 }
