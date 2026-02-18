@@ -5,14 +5,19 @@
 #include <QObject>
 #include <QTimer>
 #include <QFile>
+#include <QDir>
 #include <QIODevice>
 #include <QCoreApplication>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonValue>
 #include "Backend.h"
 #include "services/database/SqlCondition.h"
 #include "services/database/SqlConditionBuilder.h"
@@ -28,8 +33,20 @@ GithubConnection::GithubConnection(Backend* b, QObject *parent) : QObject(parent
     connect(&m_timer, &QTimer::timeout, this, &GithubConnection::checkUser);
 }
 
-void GithubConnection::debug(const QVariant &obj) {
-    qDebug() << "[GithubConnection]:" << obj;
+void GithubConnection::debug(const QVariant &obj, bool showType) {
+    if (obj.canConvert<QString>() && !showType) 
+        qDebug() << "[GithubConnection]:" << obj.toString().toUtf8();
+    else if ((obj.canConvert<QVariantList>() || obj.canConvert<QVariantMap>()) && !showType) {
+        QJsonValue value = QJsonValue::fromVariant(obj);
+        
+        QJsonDocument doc;
+        if (value.isObject()) doc = QJsonDocument(value.toObject());
+        if (value.isArray()) doc = QJsonDocument(value.toArray());
+
+        qDebug() << "[GithubConnection]:" << doc.toJson(QJsonDocument::Compact);
+    } else {
+        qDebug() << "[GithubConnection]:" << obj;
+    }
     return;
 }
 
@@ -95,7 +112,7 @@ bool GithubConnection::sync() {
 
     QJsonObject body;
     body["message"] = "database sync";
-    body["content"] = QString::fromLatin1(databaseBase64);
+    body["content"] = QString::fromUtf8(databaseBase64);
 
     auto asyncWork = [this, body, req]() mutable {
         QNetworkRequest shaReq(QUrl(m_storageLink.toUtf8() + "app.db"));
@@ -114,18 +131,19 @@ bool GithubConnection::sync() {
                 QString theSha = doc.object()["sha"].toString();
                 body["sha"] = theSha;
 
-                QByteArray payload = QJsonDocument(body).toJson();
-                QNetworkReply *putReply = m_manager->put(req, payload);
+                QString serverContent = doc.object()["content"].toString().remove("\n");
+            }
+            QByteArray payload = QJsonDocument(body).toJson();
+            QNetworkReply *putReply = m_manager->put(req, payload);
 
-                connect(putReply, &QNetworkReply::finished, this, [this, putReply]() mutable {
-                    int code = putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            connect(putReply, &QNetworkReply::finished, this, [this, putReply]() mutable {
+                int code = putReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
                     if (code == 200) m_status = "Synced";
-                    else m_status = "Failed to Sync";
-                    backend->getNavBar().setGithubConnectionStatus(m_status);
-                    putReply->deleteLater();
-                });
-            }
+                else m_status = "Failed to Sync";
+                backend->getNavBar().setGithubConnectionStatus(m_status);
+                putReply->deleteLater();
+            });
             shaReply->deleteLater();
         });
     };
