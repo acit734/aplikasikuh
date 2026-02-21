@@ -114,7 +114,7 @@
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
 -DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">D:\Mogram\Coba deh beneran aplikasi\Proyek_1_moduled\build\Desktop_Qt_6_9_2_MinGW_64_bit-Debug</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">D:\Mogram\Coba deh beneran aplikasi\Aplikasikuh\build\Desktop_Qt_6_9_2_MinGW_64_bit-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -215,9 +215,9 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph &quot;dwarf,4096&quot; -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appProyek_1_moduled</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appAplikasikuh</value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
-     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">appProyek_1_moduled</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">appAplikasikuh</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
@@ -284,9 +284,9 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph &quot;dwarf,4096&quot; -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appProyek_1_moduled</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appAplikasikuh</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">appProyek_1_moduled</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">appAplikasikuh</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

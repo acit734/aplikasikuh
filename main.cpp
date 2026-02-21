@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         }
     );
 
-    engine.loadFromModule("Proyek_1_moduled", "Main");
+    engine.loadFromModule("Aplikasikuh", "Main");
 
     return app.exec();
 }
